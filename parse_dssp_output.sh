@@ -12,65 +12,32 @@ done
 # Compress files inot one archive
 zip ./dataset/all_pdb_files.zip ./dataset/pdb_files/*.pdb
 rm ./dataset/pdb_files/*.pdb
+rm ./dataset/list_of_id.txt
 
-mkdir -p ./dssp_output/dssp_without_header
-header="./dssp_output/dssp_without_header/"
+
+mkdir -p ./dssp_output/raw_dssp
+
+
 mkdir -p ./dssp_output/sequence
 sequence="./dssp_output/sequence/"
 mkdir -p ./dssp_output/solvent_accessibility
 accessibility="./dssp_output/solvent_accessibility/"
 mkdir -p ./dssp_output/angles
 angles="./dssp_output/angles/"
-mkdir -p ./dssp_output/secondary_structures
-secondary="./dssp_output/secondary_structures/"
-#Delete header from DSSP result files
-for i in `ls ./dssp_output/raw_dssp/*.pdb.ds`; do
-    j=".dssp"
-    echo $i
-    name=$(basename $i)
-    name=$(echo "$name" | cut -f 1 -d '.')
-    echo 'Processing to deletion of header of: ' $name
-    grep -A 1000 "#" $i > $header$name$j
-done
-
 
 #Save Amino acid sequence from each DSSP result in a new file
-for i in `ls ./dssp_output/dssp_without_header/*.dssp`; do #la colone 14 est vire
-    j=".seq"
-    echo $i
+for i in `ls ./dssp_output/raw_dssp/*.dssp`; do #la colone 14 est vire
     name=$(basename $i)
     name=$(echo "$name" | cut -f 1 -d '.')
     echo 'Processing to save Amino acid sequence of: ' $name
-    tail -n +2 $i | awk -F "" '{print $14}' | tr -d '\n' > $sequence$name$j
-done
-
-#Save solvent accessibility informations (column 36,37 and 38 in DSSP result files) in a new file
-for i in `ls ./dssp_output/dssp_without_header/*.dssp`; do
-    j=".acc"
-    echo $i
-    name=$(basename $i)
-    name=$(echo "$name" | cut -f 1 -d '.')
-    echo 'Processing to save solvent accessibility informations of: ' $name
-    tail -n +2 $i | awk -F "" '{print $36 $37 $38}' | tr '\n' ',' | sed 's/\s//g' > $accessibility$name$j
-done
-
-
-#Save PHI and PSI values in a new file
-# for i in `ls ./dssp_output/dssp_without_header/*.dssp`; do
-#     j=".acc"
-#     echo $i
-#     name=$(basename $i)
-#     name=$(echo "$name" | cut -f 1 -d '.')
-#     cat $i | awk -F "" '{print substr($0,104,6)}' | tail -n +2 | tr '\n' ',' | sed 's/\s//g' > $angles$name$j
-#     cat $i | awk -F "" '{print substr($0,110,6)}' | tail -n +2 | tr '\n' ',' | sed 's/\s//g' > $angles$name$j
-# done
-#Save secondary structure informations from column 17 in a new file
-
-for i in `ls ./dssp_output/dssp_without_header/*.dssp`; do
-    j=".ss"
-    echo $i
-    name=$(basename $i)
-    name=$(echo "$name" | cut -f 1 -d '.')
-    echo 'Processing to save secondary structure informations of: ' $name
-    cat $i  |tail -n +2 | awk -F "" '{print $17}' | tr '\n' ',' | sed 's/\s/L/g' | sed 's/,//g' > $secondary$name$j
+    tail -n +29 $i | awk -F "" '{print $14}' | tr -d '\n' > "$sequence$name.seq"
+	#Save solvent accessibility informations (column 36,37 and 38 in DSSP result files) in a new file
+	echo 'Processing to save solvent accessibility informations of: ' $name
+	tail -n +29 $i | awk -F "" '{print $36 $37 $38}' | tr '\n' ',' | sed 's/\s//g' > "$accessibility$name.acc"
+	# Save PHI and PSI values in a new file
+	phi=$(tail -n +29 $i | awk -F "" '{print substr($0,104,6)}' | tr '\n' ',' | sed 's/\s//g')
+	psi=$(tail -n +29 $i | awk -F "" '{print substr($0,110,6)}' | tr '\n' ',' | sed 's/\s//g')
+	echo $phi > "$angles$name.ang"
+	echo $psi > "$angles$name.ang"
+	rm $i
 done
