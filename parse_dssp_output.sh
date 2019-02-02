@@ -5,20 +5,25 @@ mkdir -p ./dataset/pdb_files
 #  Get PDB id, remove header and remove chains identifier (last char of PDB ID)
 list_of_id=`awk '{ print $1 }' ./dataset/cullpdb_pc20_res1.6_R0.25_d190117_chains3429 | tail -n +2 | cut -c1-4`
 # Loop on every ID and wget it
-# for i in $list_of_id; do
-# 	[ ! -e ./dataset/pdb_files/$i.pdb ] &&  `wget https://files.rcsb.org/download/$i.pdb -P ./dataset/pdb_files/`
-# 	sleep 0.1
-# done
+for i in $list_of_id; do
+	[ ! -e ./dataset/pdb_files/$i.pdb ] &&  `wget https://files.rcsb.org/download/$i.pdb -P ./dataset/pdb_files/`
+	# Wait time to avoid to send too muche request to PDB database
+	sleep 0.1
+done
 # Compress files into one archive
-# zip ./dataset/all_pdb_files.zip ./dataset/pdb_files/*.pdb
+zip ./dataset/all_pdb_files.zip ./dataset/pdb_files/*.pdb
 # Delete temporary files
 rm ./dataset/pdb_files/*.pdb
 # Create directory to store DSSP output
 mkdir -p ./dssp_output/raw_dssp
-echo 'COmpute DSSP'
+echo 'Compute DSSP'
+# For every PDB ID
 for i in $list_of_id; do
+	# If PDB does not exist unzip it
 	[ ! -e ./dataset/pdb_files/$i.pdb ] && unzip -j "./dataset/all_pdb_files.zip" "dataset/pdb_files/$i.pdb" -d "./dataset/pdb_files/"
+	# If PDB has not been computed using DSSP
 	[ ! -e ./dssp_output/raw_dssp/$i.dssp ] && ./bin_dssp/dssp-2.0.4-linux-amd64 -i ./dataset/pdb_files/$i.pdb -o ./dssp_output/raw_dssp/$i.dssp
+	# delete pdb files, considered as a temporary file
 	rm -f ./dataset/pdb_files/$i.pdb
 done
 
@@ -45,5 +50,6 @@ for i in `ls ./dssp_output/raw_dssp/*.dssp`; do
 	# store those informations, phi in first line, psi in seconde line
 	echo $phi > "$angles$name.ang"
 	echo $psi >> "$angles$name.ang"
+	# Delete dssp file, considered as a temporary file
 	rm $i
 done
