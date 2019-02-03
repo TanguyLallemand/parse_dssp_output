@@ -1,7 +1,9 @@
 #! /bin/bash
+
 ################################################################################
 # Creation of directories, store some paths in variables                       #
 ################################################################################
+
 # Create directory to store dataset
 mkdir -p ./dataset/
 mkdir -p ./dataset/pdb_files
@@ -22,6 +24,7 @@ angles="./dssp_output/angles/"
 # resolution cut-off of 1.6 angstrom                                           #
 # R-factor cutoff of 0.25                                                      #
 ################################################################################
+
 #  Get PDB id, remove header and remove chains identifier (last char of PDB ID)
 list_of_id=`awk '{ print $1 }' ./dataset/cullpdb_pc20_res1.6_R0.25_d190117_chains3429 | tail -n +2 | cut -c1-4`
 # Loop on every ID and wget it
@@ -39,6 +42,7 @@ rm -f ./dataset/pdb_files/*.pdb
 ################################################################################
 # Get Compute DSSP on every file of previoulsy constructed dataset             #
 ################################################################################
+
 echo 'Compute DSSP'
 # For every PDB ID
 for i in $list_of_id; do
@@ -56,6 +60,7 @@ done
 # .acc to store solvent accessibility of every structures                      #
 # .ang to store every angles torsion (phi and psi angles) of structures        #
 ################################################################################
+
 for i in `ls ./dssp_output/raw_dssp/*.dssp`; do
 	# Get name of PDB
     name=$(basename $i)
