@@ -23,16 +23,16 @@ angles="./dssp_output/angles/"
 # R-factor cutoff of 0.25                                                      #
 ################################################################################
 #  Get PDB id, remove header and remove chains identifier (last char of PDB ID)
- list_of_id=`awk '{ print $1 }' ./dataset/cullpdb_pc20_res1.6_R0.25_d190117_chains3429 | tail -n +2 | cut -c1-4`
-# # Loop on every ID and wget it
-# for i in $list_of_id; do
-# 	# If PDB file does not already exist
-# 	[ ! -e ./dataset/pdb_files/$i.pdb ] &&  `wget https://files.rcsb.org/download/$i.pdb -P ./dataset/pdb_files/`
-# 	# Wait time to avoid to send too muche request to PDB database
-# 	sleep 0.1
-# done
-# # Compress files into one archive
-# zip ./dataset/all_pdb_files.zip ./dataset/pdb_files/*.pdb
+list_of_id=`awk '{ print $1 }' ./dataset/cullpdb_pc20_res1.6_R0.25_d190117_chains3429 | tail -n +2 | cut -c1-4`
+# Loop on every ID and wget it
+for i in $list_of_id; do
+	# If PDB file does not already exist
+	[ ! -e ./dataset/pdb_files/$i.pdb ] &&  `wget https://files.rcsb.org/download/$i.pdb -P ./dataset/pdb_files/`
+	# Wait time to avoid to send too muche request to PDB database
+	sleep 0.1
+done
+# Compress files into one archive
+zip ./dataset/all_pdb_files.zip ./dataset/pdb_files/*.pdb
 # Delete temporary files
 rm -f ./dataset/pdb_files/*.pdb
 
