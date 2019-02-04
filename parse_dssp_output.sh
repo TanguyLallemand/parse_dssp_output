@@ -82,3 +82,6 @@ for i in `ls ./dssp_output/raw_dssp/*.dssp`; do
 	# Delete dssp file, considered as a temporary file
 	rm $i
 done
+# Delete temporary directories
+rmdir ./dssp_output/raw_dssp
+rmdir ./dataset/pdb_files
