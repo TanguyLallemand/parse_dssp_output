@@ -46,7 +46,7 @@ rm -f ./dataset/pdb_files/*.pdb
 echo 'Compute DSSP'
 # For every PDB ID
 for i in $list_of_id; do
-	# If PDB does not exist unzip it
+	# If PDB file does not exist unzip it
 	unzip -j "./dataset/all_pdb_files.zip" "dataset/pdb_files/$i.pdb" -d "./dataset/pdb_files/"
 	# If PDB has not been computed using DSSP
 	[ ! -e ./dssp_output/raw_dssp/$i.dssp ] && ./bin_dssp/dssp-2.0.4-linux-amd64 -i ./dataset/pdb_files/$i.pdb -o ./dssp_output/raw_dssp/$i.dssp
